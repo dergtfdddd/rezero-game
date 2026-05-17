@@ -1,46 +1,40 @@
 apply plugin: 'com.android.application'
 
 android {
-    // Версия SDK для сборки. 29 или 30 идеально подходят для старых Gradle-скриптов
+    // Указываем стабильные версии инструментов для старого Gradle 5.6.4
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        // Уникальный идентификатор твоего приложения на телефоне
         applicationId "com.dergtfdddd.rezero"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        // КРИТИЧЕСКИЙ ШАГ ДЛЯ C++: Указываем точные архитектуры процессоров.
-        // Без этого Gradle может проигнорировать компиляцию под 64-битные смартфоны.
+        // Принудительно собираем под нужные архитектуры процессоров
         ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
     }
 
-    // Настройка путей к исходникам и ресурсам игры
-    sourceSets {
-        main {
-            // Указываем, где искать скомпилированные C++ библиотеки (.so файлы)
-            jniLibs.srcDirs = ['src/main/jniLibs', 'libs']
-            // Указываем путь к папке с пиксельными текстурами, звуками и шрифтами
-            assets.srcDirs = ['src/main/assets']
-        }
-    }
-
-    /*
-    // Если твой C++ код лежит в папке jni и компилируется через Android.mk / NdK-Build,
-    // раскомментируй этот блок (удали косые черты со звездочками), чтобы включить автосборку скриптом:
+    // Включаем прямую компиляцию твоего C++ кода через Android NDK
     externalNativeBuild {
         ndkBuild {
+            // Указываем путь к главному конфигурационному файлу твоего C++ кода
             path 'src/main/jni/Android.mk'
         }
     }
-    */
+
+    // Настраиваем пути, чтобы Gradle не потерял картинки и библиотеки
+    sourceSets {
+        main {
+            // Где искать готовые или сторонние .so библиотеки
+            jniLibs.srcDirs = ['src/main/jniLibs', 'libs']
+            // Где лежат пиксельные текстуры, карты уровней и шрифты игры
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
 
     buildTypes {
         release {
@@ -49,15 +43,13 @@ android {
         }
         debug {
             debuggable true
-            jniDebuggable true
+            jniDebuggable true // Позволяет отлаживать C++ код при вылетах
         }
     }
 }
 
 dependencies {
-    // Базовые библиотеки Android, необходимые для запуска графической активности
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // Минимальный набор библиотек для работы Android-окна
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 }
