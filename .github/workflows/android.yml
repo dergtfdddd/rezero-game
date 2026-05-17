@@ -23,7 +23,15 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
       with:
-        gradle-version: 5.6.4 # Стабильная версия для старых Gradle-скриптов
+        gradle-version: 5.6.4
 
     - name: Build with Gradle
       run: gradle assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: rezero-game-debug
+        path: |
+          **/build/outputs/apk/debug/*.apk
+          **/build/outputs/apk/*.apk
