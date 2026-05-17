@@ -20,6 +20,12 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
 
+    # НОВЫЙ ШАГ: Ставим стабильный NDK, который на 100% дружит со старыми Gradle-скриптами
+    - name: Install Android NDK
+      uses: android-actions/setup-android@v3
+      with:
+        ndk-version: '21.4.7075529'
+
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
       with:
@@ -27,11 +33,3 @@ jobs:
 
     - name: Build with Gradle
       run: gradle assembleDebug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: rezero-game-debug
-        path: |
-          **/build/outputs/apk/debug/*.apk
-          **/build/outputs/apk/*.apk
