@@ -1,45 +1,63 @@
 apply plugin: 'com.android.application'
 
 android {
-	externalNativeBuild {
-    cmake {
-        path "src/main/jni/CMakeLists.txt"
-    }
-}
-
-    compileSdkVersion 29
-    
+    // Версия SDK для сборки. 29 или 30 идеально подходят для старых Gradle-скриптов
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.rezero.game"
-        minSdkVersion 14
-        targetSdkVersion 29
+        // Уникальный идентификатор твоего приложения на телефоне
+        applicationId "com.dergtfdddd.rezero"
+        minSdkVersion 21
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // КРИТИЧЕСКИЙ ШАГ ДЛЯ C++: Указываем точные архитектуры процессоров.
+        // Без этого Gradle может проигнорировать компиляцию под 64-битные смартфоны.
         ndk {
-            moduleName "hello-jni"
-            abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
         }
     }
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+    // Настройка путей к исходникам и ресурсам игры
+    sourceSets {
+        main {
+            // Указываем, где искать скомпилированные C++ библиотеки (.so файлы)
+            jniLibs.srcDirs = ['src/main/jniLibs', 'libs']
+            // Указываем путь к папке с пиксельными текстурами, звуками и шрифтами
+            assets.srcDirs = ['src/main/assets']
         }
     }
-    buildTypes {
-        debug {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+
+    /*
+    // Если твой C++ код лежит в папке jni и компилируется через Android.mk / NdK-Build,
+    // раскомментируй этот блок (удали косые черты со звездочками), чтобы включить автосборку скриптом:
     externalNativeBuild {
         ndkBuild {
             path 'src/main/jni/Android.mk'
         }
     }
+    */
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+            jniDebuggable true
+        }
+    }
 }
 
 dependencies {
+    // Базовые библиотеки Android, необходимые для запуска графической активности
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 }
